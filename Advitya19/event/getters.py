@@ -1,4 +1,5 @@
-from .models import Event, Coordinator
+from .models import Event, Coordinator, Registration
+from user.getters import UserGetter
 from rest_framework import exceptions
 
 class EventGetter:
@@ -19,12 +20,35 @@ class EventGetter:
             msg = 'Invalid event code.'
             raise exceptions.NotFound(msg)
 
+    def get_event_by_registration(pk):
+        registration = RegistrationGetter.get_registration_by_pk(pk)
+        try:
+            return registration.event
+        except:
+            msg = 'Bad Registration.'
+            raise exceptions.NotFound(msg)
+
 
 class RegistrationGetter:
+    def get_registration_by_pk(pk):
+        try:
+            return Registration.objects.get(pk=pk)
+        except:
+            msg = 'Invalid registration key.'
+            raise exceptions.NotFound(msg)
+
     def get_registrations_by_event(pk):
         event = EventGetter.get_event_by_pk(pk)
         try:
             return event.registration_set.filter(is_active=True)
+        except:
+            msg = 'No registrations'
+            raise exceptions.NotFound(msg)
+
+    def get_registrations_by_user(pk):
+        user = UserGetter.get_user_by_pk(pk)
+        try:
+            return user.registration_set.filter(is_active=True)
         except:
             msg = 'No registrations'
             raise exceptions.NotFound(msg)

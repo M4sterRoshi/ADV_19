@@ -48,6 +48,12 @@ class RegistrationUserSerializer(serializers.ModelSerializer):
         fields = ('name', 'email')
 
 
+class RegistrationEventSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Event
+        fields = ('code',)
+
+
 class RegistrationUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Registration

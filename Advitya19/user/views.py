@@ -15,7 +15,7 @@ class UserRegistration(APIView):
             user_serializer = self.user_serializer_class(data=user)
             user_serializer.is_valid(raise_exception=True)
             user_serializer.save()
-            return Response({'detail':'success'}, status=status.HTTP_201_CREATED)
+            return Response({'token':user_serializer.data["token"]}, status=status.HTTP_201_CREATED)
 
 
 class UserLogin(APIView):

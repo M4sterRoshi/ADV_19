@@ -3,7 +3,7 @@ from rest_framework.generics import RetrieveUpdateAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from .serializers import EventRegistrationSerializer, EventListSerializer, EventDetailSerializer, RegistrationUserSerializer, RegistrationUpdateSerializer, CoordinatorSerializer
+from .serializers import EventRegistrationSerializer, EventListSerializer, EventDetailSerializer, RegistrationUserSerializer, RegistrationUpdateSerializer, CoordinatorSerializer, RegistrationEventSerializer
 from .renderers import EventJSONRenderer
 from .getters import EventGetter, RegistrationGetter, CoordinatorGetter, TagGetter
 
@@ -93,3 +93,19 @@ class RegistrationUpdate(APIView):
         serializer.is_valid()
         serializer.save()
         return Response({'detail':'success'}, status=status.HTTP_200_OK)
+
+
+class UserRegisteredEventsView(APIView):
+    permission_classes = (IsAuthenticated,)
+    event_serializer_class = RegistrationEventSerializer
+    registration_getter_class = RegistrationGetter
+    event_getter_class = EventGetter
+
+    def get(self, request):
+        user = request.user
+        registrations = self.registration_getter_class.get_registrations_by_user(user.pk)
+        events = []
+        for r in registrations:
+            events.append(self.event_getter_class.get_event_by_registration(r.pk))
+        event_serializer = self.event_serializer_class(events, many=True)
+        return Response(event_serializer.data, status=status.HTTP_200_OK)
